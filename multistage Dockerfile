@@ -1,0 +1,18 @@
+#compile and build stage
+FROM maven:3.9.6
+
+WORKDIR /app
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+#runtime stage deploy war 
+FROM tomcat:10.1.14
+
+COPY --from=build /app/target/LoginWebApp.war /usr/local/tomcat/webapps/
+
+EXPOSE 8080
+
+CMD ["catalina.sh", "run"]
