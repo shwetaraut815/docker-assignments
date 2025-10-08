@@ -1,0 +1,25 @@
+  services:
+  s1:
+    image: "httpd"
+    networks:
+      - "httpd-net"
+    ports:
+      - "80:80"
+    volumes:
+      - "/mnt:/usr/local/apache2/htdocs"
+
+  s2:
+    image: "tomcat:9.0.110"
+    networks:
+      - "tomcat-net"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/mnt/sample:/usr/local/tomcat/webapps"
+
+networks:
+  httpd-net:
+    driver: bridge
+
+  tomcat-net:
+    driver: bridge
