@@ -1,0 +1,65 @@
+---
+# Deploy WAR on Docker container using Ansible
+
+- name: Install Docker and deploy WAR on container
+  hosts: docker
+  user: crew
+  become: yes
+  connection: ssh
+  gather_facts: yes
+
+  tasks:
+
+    - name: Install Docker
+      yum:
+        name: docker
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Copy Dockerfile
+      copy:
+        src: Dockerfile
+        dest: /mnt/Dockerfile
+
+    - name: Copy WAR file
+      copy:
+        src: sample.war
+        dest: /mnt/sample.war
+
+    - name: Build Docker image
+      community.docker.docker_image:
+        name: tomcat_image
+        tag: "1.0"
+        build:
+          path: /mnt
+        source: build
+        state: present
+
+    - name: Create custom network
+      community.docker.docker_network:
+        name: deploy_net
+        driver: bridge
+        state: present
+
+    - name: Run Tomcat container
+      community.docker.docker_container:
+        name: tomcat_cont
+        image: tomcat_image:1.0
+        state: started
+        networks:
+          - name: deploy_net
+        volumes:
+          - /mnt/sample.war:/usr/local/tomcat/webapps/sample.war
+        published_ports:
+          - "8080:8080"
+
+# Dockerfile
+FROM tomcat:10-jdk17
+EXPOSE 8080
+CMD ["catalina.sh", "run"]
+
