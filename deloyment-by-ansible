@@ -1,0 +1,45 @@
+---
+# deploy war on tomcat using ansible
+
+# target section
+- name: Install Java, Tomcat, and Deploy WAR Application
+  hosts: tomcat
+  user: crew
+  become: yes
+  connection: ssh
+  gather_facts: yes
+
+  tasks:
+    - name: mkdir
+      command: mkdir -p /mnt/server
+
+    - name: install java
+      yum:
+        name: java-17-amazon-corretto.x86_64
+        state: present
+
+    - name: download tomcat
+      file:
+        path: /mnt/server
+        state: directory
+
+    - name: Download Tomcat zip
+      get_url:
+        url: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.48/bin/apache-tomcat-10.1.48.tar.gz
+        dest: /mnt/server
+
+    - name: Extract Tomcat
+      unarchive:
+        src: /mnt/server/apache-tomcat-10.1.48.tar.gz
+        dest: /mnt/server
+        remote_src: yes
+
+    - name: Deploy WAR file
+      copy:
+        src: sample.war
+        dest: /mnt/server/apache-tomcat-10.1.48/webapps
+
+    - name: start tomcat
+      shell: /mnt/server/apache-tomcat-10.1.48/bin/startup.sh
+      args:
+        chdir: /mnt/server/apache-tomcat-10.1.48/bin
