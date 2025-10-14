@@ -1,3 +1,4 @@
+
 ---
 # deploy war on tomcat using ansible
 
@@ -8,6 +9,9 @@
   become: yes
   connection: ssh
   gather_facts: yes
+
+  vars:
+    tomcat_home: /mnt/server/apache-tomcat-10.1.48
 
   tasks:
     - name: mkdir
@@ -30,16 +34,17 @@
 
     - name: Extract Tomcat
       unarchive:
-        src: /mnt/server/apache-tomcat-10.1.48.tar.gz
+        src: "{{tomcat_home}}.tar.gz"
         dest: /mnt/server
         remote_src: yes
 
     - name: Deploy WAR file
       copy:
         src: sample.war
-        dest: /mnt/server/apache-tomcat-10.1.48/webapps
+        dest: "{{tomcat_home}}/webapps"
 
     - name: start tomcat
-      shell: /mnt/server/apache-tomcat-10.1.48/bin/startup.sh
+      shell: "{{tomcat_home}}/bin/startup.sh"
       args:
-        chdir: /mnt/server/apache-tomcat-10.1.48/bin
+        chdir: "{{tomcat_home}}/bin"
+
