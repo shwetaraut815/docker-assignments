@@ -1,6 +1,6 @@
 
 ---
-# deploy war on tomcat using ansible
+# deploy war on tomcat using ansible #
 
 # target section
 - name: Install Java, Tomcat, and Deploy WAR Application
