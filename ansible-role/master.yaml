@@ -5,13 +5,6 @@
   connection: ssh
   gather_facts: yes
 
-
-- name: Install Docker and deploy WAR on container
-  hosts: docker
-  user: crew
-  become: yes
-  connection: ssh
-  gather_facts: yes
-
   roles:
+    - tomcat-role
 
