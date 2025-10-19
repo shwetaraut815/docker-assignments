@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e  # Exit immediately if any command fails
 
 # Path to WAR file
