@@ -11,3 +11,5 @@ step 6: create jenkins declarative pipeline job
 3. call shellscript for configuration
 4. Deploys the updated WAR file on a Tomcat server running on a slave
 5. Starts Tomcat
+step 6: verify and access webapplication on browser
+data added in the webapplication store in rds at backend
