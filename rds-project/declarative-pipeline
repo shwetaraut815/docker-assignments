@@ -1,0 +1,57 @@
+pipeline {
+    agent { 
+        label 'slave-1'
+    }
+
+    tools {
+        maven 'maven'
+    }
+
+    stages {
+
+        stage('Git Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/shwetaraut815/project.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Update DB Config') {
+            steps {
+                
+                sh 'bash update-db-config.sh'
+            }
+        }
+
+        stage('Deployment') {
+            steps {
+                echo "Deploying WAR to Tomcat..."
+                sh '''
+                    TOMCAT_HOME=/mnt/server/apache-tomcat-10.1.48
+
+                    
+                    sudo $TOMCAT_HOME/bin/shutdown.sh || true
+
+                    
+                    sudo rm -rf $TOMCAT_HOME/webapps/LoginWebApp*
+
+                    
+                    sudo cp target/LoginWebApp.war $TOMCAT_HOME/webapps/
+
+                    
+                    sudo $TOMCAT_HOME/bin/startup.sh
+                    sleep 10
+
+                    echo "Deployment completed successfully!"
+                '''
+            }
+        }
+
+    }
+}
+
