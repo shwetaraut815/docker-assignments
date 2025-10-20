@@ -1,0 +1,44 @@
+version: "3.8"
+
+networks:
+  custom-bridge-nw:
+    driver: bridge
+
+volumes:
+  mysql-db:
+
+services:
+  # MySQL service
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin1234
+    ports:
+      - "3307:3306"  # host port : container port
+    volumes:
+      - mysql-db:/var/lib/mysql
+    networks:
+      - custom-bridge-nw
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+
+  # Tomcat service
+  tomcat:
+    build: .
+    container_name: tomcat-web
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - custom-bridge-nw
+
