@@ -1,50 +1,60 @@
-
 ---
-# deploy war on tomcat using ansible #
 
-# target section
-- name: Install Java, Tomcat, and Deploy WAR Application
-  hosts: tomcat
-  user: crew
+- name: deployment using tomcat
+  hosts: linux
   become: yes
   connection: ssh
-  gather_facts: yes
+  user: xyz
 
   vars:
-    tomcat_home: /mnt/server/apache-tomcat-10.1.48
+
+    dir: /mnt/server
+    tomcat_home: /mnt/server/apache-tomcat-10.1.50
 
   tasks:
-    - name: mkdir
-      command: mkdir -p /mnt/server
+
+    - name: Create directory
+      file:
+        path: "{{ dir }}"
+        state: directory
 
     - name: install java
       yum:
         name: java-17-amazon-corretto.x86_64
         state: present
 
-    - name: download tomcat
+    - name: tomcat dir
       file:
-        path: /mnt/server
+        path: "{{dir}}"
         state: directory
 
-    - name: Download Tomcat zip
+    - name: download tomcat
       get_url:
-        url: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.48/bin/apache-tomcat-10.1.48.tar.gz
-        dest: /mnt/server
+        url: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.50/bin/apache-tomcat-10.1.50.tar.gz
+        dest: "{{dir}}"
 
-    - name: Extract Tomcat
+    - name: extract
       unarchive:
         src: "{{tomcat_home}}.tar.gz"
-        dest: /mnt/server
+        dest: "{{dir}}"
         remote_src: yes
+      notify:
+          - deploy-war
+          - start
 
-    - name: Deploy WAR file
+    - name: Set permission for a file
+      file:
+        path: "{{tomcat_home}}"
+        mode: '0755'
+
+  handlers:
+
+    - name: deploy-war
       copy:
         src: sample.war
         dest: "{{tomcat_home}}/webapps"
 
-    - name: start tomcat
+    - name: start
       shell: "{{tomcat_home}}/bin/startup.sh"
       args:
         chdir: "{{tomcat_home}}/bin"
-
