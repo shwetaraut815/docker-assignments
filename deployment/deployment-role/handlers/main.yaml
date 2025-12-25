@@ -1,0 +1,11 @@
+  handlers:
+
+    - name: deploy-war
+      copy:
+        src: sample.war
+        dest: "{{tomcat_home}}/webapps"
+
+    - name: start
+      shell: "{{tomcat_home}}/bin/startup.sh"
+      args:
+        chdir: "{{tomcat_home}}/bin"

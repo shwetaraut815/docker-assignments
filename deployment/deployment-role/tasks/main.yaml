@@ -1,0 +1,35 @@
+tasks:
+
+    - name: Create directory
+      file:
+        path: "{{ dir }}"
+        state: directory
+
+    - name: install java
+      yum:
+        name: java-17-amazon-corretto.x86_64
+        state: present
+
+    - name: tomcat dir
+      file:
+        path: "{{dir}}"
+        state: directory
+
+    - name: download tomcat
+      get_url:
+        url: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.50/bin/apache-tomcat-10.1.50.tar.gz
+        dest: "{{dir}}"
+
+    - name: extract
+      unarchive:
+        src: "{{tomcat_home}}.tar.gz"
+        dest: "{{dir}}"
+        remote_src: yes
+      notify:
+          - deploy-war
+          - start
+
+    - name: Set permission for a file
+      file:
+        path: "{{tomcat_home}}"
+        mode: '0755'

@@ -1,0 +1,9 @@
+
+- name: deployment using tomcat
+  hosts: linux
+  become: yes
+  connection: ssh
+  user: xyz
+
+  roles:
+    -  deployment-role
